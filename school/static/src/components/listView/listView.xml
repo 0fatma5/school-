@@ -1,0 +1,28 @@
+<templates xml:space="preserve">
+    <t t-name="school.ListView">
+        <div class="school-listview">
+            <h1>school List</h1>
+            <p>Welcome to the custom school list view.</p>
+        </div>
+        <div class="school-listview">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>location</th>
+                        <th>Principal_Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="state.records" t-as="record" t-key="record.id">
+                        <tr>
+                            <td><t t-esc="record.name"/></td>
+                            <td><t t-esc="record.location"/></td>
+                            <td><t t-esc="record.Principal_Name"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </div>
+    </t>
+</templates>

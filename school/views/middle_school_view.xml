@@ -1,0 +1,47 @@
+<odoo>
+    <record id="middle_school_view_tree" model="ir.ui.view">
+        <field name="name">middle_school tree</field>
+        <field name="model">middle.school</field>
+
+        <field name="arch" type="xml">
+            <tree>
+                <field name="no_of_students"/>
+                <field name="age_range"/>
+                <field name="subjects_offered"/>
+                <field name="activities"/>
+                <field name="exam_system"/>
+
+            </tree>
+        </field>
+    </record>
+
+    <record id="middle_school_view_form" model="ir.ui.view">
+        <field name="name">middle_school form</field>
+        <field name="model">middle.school</field>
+        <field name="inherit_id" ref="school.school_type_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group>
+                    <field name="no_of_students"/>
+                    <field name="age_range"/>
+                    <field name="subjects_offered"/>
+                    <field name="activities"/>
+                    <field name="exam_system"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="middle_school_action" model="ir.actions.act_window">
+        <field name="name">Middle Schools</field>
+        <field name="res_model">middle.school</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="middle_school_menu_item"
+        name="Middle Schools"
+        parent="school_type_menu"
+        action="middle_school_action"
+    />
+</odoo>

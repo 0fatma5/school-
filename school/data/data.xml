@@ -1,0 +1,45 @@
+<odoo>
+    <data noupdate="1">
+        <record id="school_01" model="school">
+            <field name="name">Cairo International School</field>
+            <field name="location">Nasr City, Cairo</field>
+            <field name="no_of_students">1200</field>
+            <field name="Principal_Name">Dr. Ahmed Hassan</field>
+        </record>
+
+        <record id="school_02" model="school">
+            <field name="name">Alexandria High School</field>
+            <field name="location">Gleem, Alexandria</field>
+            <field name="no_of_students">800</field>
+            <field name="Principal_Name">Ms. Fatma El-Badry</field>
+        </record>
+
+        <record id="school_03" model="school">
+            <field name="name">Giza American Academy</field>
+            <field name="location">Giza City, Giza</field>
+            <field name="no_of_students">950</field>
+            <field name="Principal_Name">Mr. Khaled Mohamed</field>
+        </record>
+
+        <record id="school_04" model="school">
+            <field name="name">Luxor School for Excellence</field>
+            <field name="location">Luxor City, Luxor</field>
+            <field name="no_of_students">600</field>
+            <field name="Principal_Name">Ms. Laila Magdy</field>
+        </record>
+
+        <record id="school_05" model="school">
+            <field name="name">Mansoura High School</field>
+            <field name="location">Mansoura, Dakahlia</field>
+            <field name="no_of_students">700</field>
+            <field name="Principal_Name">Dr. Tarek Youssef</field>
+        </record>
+
+        <record id="school_06" model="school">
+            <field name="name">Sharm El-Sheikh Academy</field>
+            <field name="location">Sharm El-Sheikh, South Sinai</field>
+            <field name="no_of_students">500</field>
+            <field name="Principal_Name">Mr. Samy Fathy</field>
+        </record>
+    </data>
+</odoo>

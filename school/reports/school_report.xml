@@ -1,0 +1,90 @@
+<odoo>
+    <record id="property_report" model="ir.actions.report">
+        <field name="name">School Report</field> <!-- The name of the report that appear to end user -->
+        <field name="model">school</field>
+        <!-- Report type specifies that the output will be a html-->
+        <field name="report_type">qweb-html</field> <!-- Defines the report type, 'qweb-html' specifies that the output is a html rendered by QWeb -->
+        <field name="binding_model_id" ref="model_school"/>
+        <field name="binding_type">report</field> <!-- Specifies the type of binding; 'report' makes the report appear as a print option -->
+        <field name="report_name">school.school_report_template</field> <!-- The template for the report, it links to the QWeb template defined below -->
+    </record>
+
+    <template id="school_report_template">
+
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <h1>School Report</h1>
+                <!-- Loop through each property document (o) in the 'docs' variable -->
+                <t t-foreach="docs" t-as="o">
+                   <h1 style="font-family:'PlaywriteVN';"><t t-esc="o.name"/></h1>
+                    <!-- Inline styling for the tables -->
+                    <style>
+                        /* Apply font globally to the entire report */
+                        body, table, td, th {
+                            font-family: 'PlaywriteVN', Arial, sans-serif;
+                        }
+
+                        table {
+                            width: 100%;
+                            border: 2px solid #4CAF50;
+                            border-collapse: collapse;
+                            margin-bottom: 20px;
+                        }
+
+                        table th {
+                            border: 2px solid #4CAF50;
+                            padding: 10px;
+                            background: #f2f2f2;
+                            color: #333333;
+                            font-weight: bold; /* Make headers bold */
+                            text-align: left; /* Align header text to the left */
+                        }
+
+                        table td {
+                            border: 2px solid #4CAF50;
+                            text-align: left;
+                            padding: 10px;
+                            background: #ffffff;
+                            color: #555555;
+                        }
+
+                        table tr:nth-child(even) {
+                            background-color: #f9f9f9; /* Zebra striping for rows */
+                        }
+
+                        table tr:hover {
+                            background-color: #e9e9e9; /* Slight highlight when hovering over rows */
+                        }
+
+                        h1, h2 {
+                            color: #2c3e50; /* Darker color for headings */
+                            font-family: 'PlaywriteVN', sans-serif; /* Ensure font applies to h1 and h2 */
+                        }
+
+                    </style>
+                    <!-- General Information Table -->
+                    <table>
+                        <thead>
+                            <!-- Table header with a title 'General Information' -->
+                            <tr>
+                                <th colspan="6">General Information</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- First row displaying the property name and postcode -->
+                            <tr>
+                                <td>Name</td>
+                                <td><t t-esc="o.name"/></td>
+                                <td>Students Number</td>
+                                <td><t t-esc="o.no_of_students"/> </td>
+                                <td>Teachers Number</td>
+                                <td><t t-esc="o.no_of_teachers"/> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

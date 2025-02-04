@@ -1,0 +1,74 @@
+<odoo>
+     <!-- Tree View for Students -->
+    <record id="student_view_tree" model="ir.ui.view">
+        <field name="name">student.tree</field>
+        <field name="model">student</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="student_grade"/>
+                <field name="age" />
+                <field name="student_id"/>
+                <field name="gender"/>
+                <field name="enrollment_date"/>
+                <field name="phone_number"/>
+                <field name="address"/>
+                <field name="score"/>
+                <field name="current_school_id" widget="many2one" options="{'no_create': True}" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for Students -->
+    <record id="student_view_form" model="ir.ui.view">
+        <field name="name">student.form</field>
+        <field name="model">student</field>
+        <field name="arch" type="xml">
+            <form>
+                <button name="%(action_change_school_wizard)d" string="Change School" type="action" class="btn-primary"/>
+
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="General Info">
+                            <field name="name" />
+                            <field name="student_id"/>
+                            <field name="score"/>
+                            <field name="age" />
+                            <field name="student_grade"/>
+                        </group>
+                        <group string="Additional Info">
+                            <field name="gender"/>
+                            <field name="enrollment_date"/>
+                            <field name="phone_number"/>
+                            <field name="address"/>
+                            <field name="current_school_id"/>
+                        </group>
+                    </group>
+<!--                    <footer>-->
+<!--                        <button name="%(action_change_school_wizard)d" string="Change School" type="action" class="btn-primary"/>-->
+<!--                    </footer>-->
+                </sheet>
+
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Students -->
+    <record id="student_action" model="ir.actions.act_window">
+        <field name="name">Students</field>
+        <field name="res_model">student</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Item for Students -->
+    <menuitem id="student_menu_item" name="Students" parent="school_menu" action="student_action"/>
+
+</odoo>
+

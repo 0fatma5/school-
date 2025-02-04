@@ -1,0 +1,93 @@
+<odoo>
+    <!-- Report definition -->
+    <record id="student_report" model="ir.actions.report">
+        <field name="name">Student Report</field> <!-- The name of the report that appears to the end user -->
+        <field name="model">student</field>
+        <!-- Report type specifies that the output will be a PDF -->
+        <field name="report_type">qweb-pdf</field>
+        <field name="binding_model_id" ref="model_student"/>
+        <field name="binding_type">report</field> <!-- Specifies the type of binding; 'report' makes the report appear as a print option -->
+        <field name="report_name">school.student_report_template</field>
+    </record>
+
+    <!-- Adding Action for printing report -->
+    <record id="action_student_report" model="ir.actions.act_window">
+        <field name="name">Print Student Report</field>
+        <field name="res_model">student</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'active_ids': active_ids, 'report_name': 'school.student_report_template'}</field>
+    </record>
+
+   <template id="student_report_template">
+    <t t-call="web.html_container">
+        <t t-call="web.external_layout"> <!-- Includes the external layout (header, footer, etc.) for consistency with Odoo's UI -->
+            <h1>Student Report</h1>
+            <!-- Loop through each student document (o) in the 'docs' variable -->
+            <t t-foreach="docs" t-as="o">
+                <h2><t t-esc="o.name"/></h2>
+                <!-- Inline styling for the tables -->
+                <style>
+                    table {
+                        width: 100%;
+                        border: 2px solid #4CAF50;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+
+                    table th {
+                        border: 2px solid #4CAF50;
+                        padding: 10px;
+                        background: #f2f2f2;
+                        color: #333333;
+                        font-weight: bold; /* Make headers bold */
+                        text-align: left; /* Align header text to the left */
+                    }
+
+                    table td {
+                        border: 2px solid #4CAF50;
+                        text-align: left;
+                        padding: 10px;
+                        background: #ffffff;
+                        color: #555555;
+                    }
+
+                    table tr:nth-child(even) {
+                        background-color: #f9f9f9; /* Zebra striping for rows */
+                    }
+
+                    table tr:hover {
+                        background-color: #e9e9e9; /* Slight highlight when hovering over rows */
+                    }
+
+                    h1, h2 {
+                        color: #2c3e50; /* Darker color for headings */
+                        font-family: Arial, sans-serif;
+                    }
+                </style>
+
+                <!-- General Information Table -->
+                <table>
+                    <thead>
+                        <!-- Table header with a title 'General Information' -->
+                        <tr>
+                            <th colspan="4">Student Information</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- First row displaying the student grade and school -->
+                        <tr>
+                            <td>Student Grade</td>
+                            <td><t t-esc="o.student_grade"/></td>
+                            <td>School Name</td>
+                            <!-- Change 'o.school_id.name' to 'o.current_school_id.name' -->
+                            <td><t t-esc="o.current_school_id.name"/> </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+        </t>
+    </t>
+</template>
+
+</odoo>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Tree View for School -->
+    <record id="School_view_tree" model="ir.ui.view">
+        <field name="name">school tree</field>
+        <field name="model">school</field>
+        <field name="arch" type="xml">
+            <tree>
+                <header>
+                    <button name ="school_xlsx_report" type="object" string="print Excel Report"
+                             class="btn_primary"/>
+                </header>
+                <field name="name" />
+                <field name="location"/>
+                <field name="school_type" />
+                <field name="no_of_students"/>
+                <field name="no_of_teachers"/>
+                <field name="Principal_Name"/>
+                <field name="campus_size"/>
+                <field name="school_address"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View for School -->
+    <record id="school_view_form" model="ir.ui.view">
+        <field name="name">school form</field>
+        <field name="model">school</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="General Info">
+                            <field name="name" required="1"/>
+                            <field name="school_address"/>
+                            <field name="location"/>
+                            <field name="campus_size"/>
+                            <field name="school_type" />
+                        </group>
+                        <group string="Additional Info">
+                            <field name="no_of_students" readonly="1"/>
+                            <field name="no_of_teachers" readonly="1"/>
+                            <field name="Principal_Name"/>
+                            <!-- Show students and teachers in many2many_tags for easy selection -->
+                            <field name="students_ids" widget="many2many_tags"/>
+                            <field name="teacher_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Schools -->
+    <record id="school_action" model="ir.actions.act_window">
+        <field name="name">Schools</field>
+        <field name="res_model">school</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu Item for School -->
+    <menuitem
+        id="School_menu_item"
+        name="School"
+        parent="school_menu"
+        action="school_action"
+    />
+    <record id="action_list_view" model="ir.actions.client">
+        <field name="name">Schools List View</field>
+        <field name="tag">school.action_list_view</field>
+    </record>
+
+    <menuitem
+        id="School_list_view_item"
+        name="Schools OWL"
+        parent="school_menu"
+        action="action_list_view"
+    />
+
+</odoo>

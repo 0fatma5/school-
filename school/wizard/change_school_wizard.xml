@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_change_school_wizard" model="ir.actions.act_window">
+        <field name="name">Change School Wizard</field>
+        <field name="res_model">change.school.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Form View for Change School Wizard -->
+    <record id="view_change_school_wizard_form" model="ir.ui.view">
+        <field name="name">change.school.wizard.form</field>
+        <field name="model">change.school.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Change School Wizard">
+                <group>
+                    <field name="student_id"/>
+                    <field name="new_school_id"/>
+                    <field name="reason"/>
+                </group>
+                <footer>
+                    <button string="Confirm" type="object" name="action_confirm" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
