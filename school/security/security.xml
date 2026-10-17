@@ -1,34 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data>
-        <!-- Define a module category for school -->
-        <record id="school_category" model="ir.module.category">
-            <field name="name">School</field>
-        </record>
+    <record id="school_category" model="ir.module.category">
+        <field name="name">School</field>
+    </record>
+    <record id="school_manager_group" model="res.groups">
+        <field name="name">School Manager</field>
+        <field name="category_id" ref="school_category"/>
+    </record>
+    <record id="school_user_group" model="res.groups">
+        <field name="name">School User (Read Only)</field>
+        <field name="category_id" ref="school_category"/>
+    </record>
 
-
-        <record id="school_manager_group" model="res.groups">
-            <field name="name">school Manager</field>
-            <field name="category_id" ref="school.school_category"/>
-        </record>
-
-
-        <record id="school_user_group" model="res.groups">
-            <field name="name">school User</field>
-            <field name="category_id" ref="school.school_category"/>
-        </record>
-
-        <!-- Record rule to restrict access based on the creator -->
-        <record id="school_record_rule_by_user" model="ir.rule">
-            <field name="name">school by User</field>
-            <field name="model_id" ref="model_school"/>
-<!--            autopmatic byt3aml create uid-->
-            <field name="domain_force">[('create_uid', '=', user.id)]</field>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
-<!--            4..> add field -->
-            <field name="groups" eval="[(4, ref('school_user_group'))]"/>
-        </record>
-    </data>
+    <!-- Read-only school users see only records they created.
+         Managers are in a separate group and can see all schools.
+         No unaffiliated internal user receives model access. -->
+    <record id="school_record_rule_by_user" model="ir.rule">
+        <field name="name">Schools created by current user</field>
+        <field name="model_id" ref="model_school"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="groups" eval="[(4, ref('school.school_user_group'))]"/>
+    </record>
 </odoo>
