@@ -1,5 +1,5 @@
 from odoo import fields, models, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, AccessError
 
 class ChangeSchoolWizard(models.TransientModel):
     _name = 'change.school.wizard'
@@ -11,6 +11,10 @@ class ChangeSchoolWizard(models.TransientModel):
 
     def action_confirm(self):
         self.ensure_one()
+        if not self.env.user.has_group('school.school_manager_group'):
+            raise AccessError(_("School Manager access is required to transfer a student."))
+        if not (self.reason or '').strip():
+            raise ValidationError(_("Please provide a reason for the transfer."))
 
         if not self.student_id:
             raise ValidationError(_("Please select a student before confirming."))
