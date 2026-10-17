@@ -31,10 +31,14 @@ class School(models.Model):
             record.no_of_teachers = self.env['teacher'].search_count([('school_id', '=', record.id)])
 
     def school_xlsx_report(self):
-        return{
-            'type':'ir.actions.act_url',
-            'url': f'/school/excel/report/{self.env.context.get("active_ids")}',
-            'target':'new'
+        active_ids = self.env.context.get('active_ids') or self.ids
+        school_ids = self.browse(active_ids).exists().ids
+        if not school_ids:
+            return False
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/school/excel/report/' + ','.join(str(sid) for sid in school_ids),
+            'target': 'new',
         }
 
 
