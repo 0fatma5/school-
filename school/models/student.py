@@ -42,7 +42,7 @@ class Student(models.Model):
     def create_transfer_record(self, old_school, new_school, reason):
         self.env['school.transfer.history'].create({
             'student_id': self.id,
-            'old_school': old_school,
-            'new_school': new_school,
+            'old_school_id': old_school.id if hasattr(old_school, 'id') else old_school,
+            'new_school_id': new_school.id if hasattr(new_school, 'id') else new_school,
             'reason': reason,
         })
