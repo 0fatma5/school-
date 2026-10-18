@@ -1,7 +1,6 @@
 {
     'name': "School",
     'author': "Fatma Ahmed",
-    'category': '',
     'version': '17.0.0.1.0',
     'depends': [
         'base',
@@ -32,5 +31,8 @@
 
     },
 
+    'summary': 'Personal Odoo 17 education management learning addon',
+    'category': 'Education',
+    'external_dependencies': {'python': ['xlsxwriter']},
     'application': True
 }

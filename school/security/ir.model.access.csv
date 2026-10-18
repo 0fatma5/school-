@@ -1,12 +1,15 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_school,access_school,model_school,,1,1,1,1
-access_student,student,model_student,,1,1,1,1
-access_teacher,teacher,model_teacher,,1,1,1,1
-access_school_type,school_type,model_school_type,,1,1,1,1
-access_primary_school,primary_school,model_primary_school,,1,1,1,
-access_middle_school,middle_school,model_middle_school,,1,1,1,1
-access_high_school,high_school,model_high_school,,1,1,1,1
-access_change_school_wizard,change_school_wizard,model_change_school_wizard,,1,1,1,1
-
-
-
+access_school,School Manager,model_school,school.school_manager_group,1,1,1,1
+access_school_user,School User Read,model_school,school.school_user_group,1,0,0,0
+access_student,Student Manager,model_student,school.school_manager_group,1,1,1,1
+access_teacher,Teacher Manager,model_teacher,school.school_manager_group,1,1,1,1
+access_school_type,School Type Manager,model_school_type,school.school_manager_group,1,1,1,1
+access_school_type_user,School Type Read,model_school_type,school.school_user_group,1,0,0,0
+access_primary_school,Primary School Manager,model_primary_school,school.school_manager_group,1,1,1,1
+access_primary_school_user,Primary School Read,model_primary_school,school.school_user_group,1,0,0,0
+access_middle_school,Middle School Manager,model_middle_school,school.school_manager_group,1,1,1,1
+access_middle_school_user,Middle School Read,model_middle_school,school.school_user_group,1,0,0,0
+access_high_school,High School Manager,model_high_school,school.school_manager_group,1,1,1,1
+access_high_school_user,High School Read,model_high_school,school.school_user_group,1,0,0,0
+access_school_transfer_history_manager,School Transfers Manager,model_school_transfer_history,school.school_manager_group,1,1,1,1
+access_change_school_wizard,School Transfer Wizard Manager,model_change_school_wizard,school.school_manager_group,1,1,1,1

@@ -48,8 +48,8 @@
                             <field name="no_of_teachers" readonly="1"/>
                             <field name="Principal_Name"/>
                             <!-- Show students and teachers in many2many_tags for easy selection -->
-                            <field name="students_ids" widget="many2many_tags"/>
-                            <field name="teacher_ids" widget="many2many_tags"/>
+                            <field name="students_ids" widget="many2many_tags" groups="school.school_manager_group"/>
+                            <field name="teacher_ids" widget="many2many_tags" groups="school.school_manager_group"/>
                         </group>
                     </group>
                 </sheet>

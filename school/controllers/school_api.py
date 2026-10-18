@@ -1,143 +1,161 @@
-import json
+"""Authenticated, permission-aware HTTP endpoints for the school portfolio addon.
+
+The original endpoints accepted anonymous writes with sudo(). This version
+requires a logged-in School Manager for mutations and an authorized school
+user/manager for reads. Write clients must provide Odoo's CSRF token.
+"""
 import logging
-from urllib.parse import parse_qs
 
 from odoo import http
 from odoo.http import request
 
-# Logger for debugging and error tracking
 _logger = logging.getLogger(__name__)
 
-# Utility function for consistent responses
-def valid_response(data, status):
-    response_body = {'data': data}
-    return request.make_json_response(response_body, status=status)
+SCHOOL_FIELDS = {
+    "name", "location", "school_type", "Principal_Name",
+    "campus_size", "school_address",
+}
+SCHOOL_TYPES = {"primary", "secondary", "highschool"}
 
-def invalid_response(error, status):
-    response_body = {'error': error}
-    return request.make_json_response(response_body, status=status)
+
+def ok(data, status=200):
+    return request.make_json_response({"data": data}, status=status)
+
+
+def error(message, status):
+    return request.make_json_response({"error": message}, status=status)
+
+
+def can_read():
+    user = request.env.user
+    return user.has_group("school.school_user_group") or user.has_group(
+        "school.school_manager_group"
+    )
+
+
+def can_write():
+    return request.env.user.has_group("school.school_manager_group")
+
+
+def validate_payload(creating=False):
+    data = request.httprequest.get_json(silent=True)
+    if not isinstance(data, dict):
+        return None, "Expected a JSON object."
+    if not data:
+        return None, "At least one field is required."
+    invalid_fields = set(data) - SCHOOL_FIELDS
+    if invalid_fields:
+        return None, "Unknown or non-writable fields: " + ", ".join(sorted(invalid_fields))
+    if (creating or "name" in data) and (
+        not isinstance(data.get("name"), str) or not data["name"].strip()
+    ):
+        return None, "School name must be a non-empty string."
+    if "name" in data:
+        data["name"] = data["name"].strip()
+    for field in ("location", "Principal_Name", "school_address"):
+        if field in data and data[field] is not False and data[field] is not None and not isinstance(data[field], str):
+            return None, field + " must be a string or null."
+    if "school_type" in data and data["school_type"] not in SCHOOL_TYPES and data["school_type"] is not False:
+        return None, "Unsupported school type."
+    if "campus_size" in data and (
+        isinstance(data["campus_size"], bool)
+        or not isinstance(data["campus_size"], int)
+        or data["campus_size"] < 0
+    ):
+        return None, "Campus size must be a non-negative integer."
+    return data, None
 
 
 class SchoolApi(http.Controller):
-
-    @http.route("/v1/school", methods=["POST"], type="http", auth="none", csrf=False)
+    @http.route("/v1/school", methods=["POST"], type="http", auth="user", csrf=True)
     def post_school(self, **kwargs):
+        if not can_write():
+            return error("School Manager permission required.", 403)
+        values, problem = validate_payload(creating=True)
+        if problem:
+            return error(problem, 400)
         try:
-            vals = json.loads(request.httprequest.data.decode())
-            # Validate required fields
-            required_fields = ['name']
-            missing_fields = [field for field in required_fields if not vals.get(field)]
-            if missing_fields:
-                return invalid_response(f"Missing required fields: {', '.join(missing_fields)}", status=400)
+            school = request.env["school"].create(values)
+            return ok({"message": "School created.", "id": school.id, "name": school.name}, 201)
+        except Exception:
+            _logger.exception("Failed to create school")
+            return error("Unable to create school.", 500)
 
-            # Create the school record
-            school_rec = request.env['school'].sudo().create(vals)
-            return valid_response({
-                "message": "School has been created successfully.",
-                "id": school_rec.id,
-                "name": school_rec.name,
-            }, status=201)
-        except Exception as e:
-            _logger.exception("Error creating school.")
-            return invalid_response("An unexpected error occurred.", status=500)
-
-
-    @http.route("/v1/school/<int:school_id>", methods=["GET"], type="http", auth="none", csrf=False)
-    def get_school(self, school_id):
+    @http.route("/v1/school/<int:school_id>", methods=["GET"], type="http", auth="user")
+    def get_school(self, school_id, **kwargs):
+        if not can_read():
+            return error("School access required.", 403)
         try:
-            school_rec = request.env['school'].sudo().search([('id', '=', school_id)])
-            if not school_rec:
-                return invalid_response("ID does not exist!", status=404)
-            return valid_response({
-                "id": school_rec.id,
-                "name": school_rec.name,
-            }, status=200)
-        except Exception as e:
-            _logger.exception("Error fetching school details.")
-            return invalid_response("An unexpected error occurred.", status=500)
+            school = request.env["school"].search([("id", "=", school_id)], limit=1)
+            if not school:
+                return error("School not found.", 404)
+            return ok({"id": school.id, "name": school.name})
+        except Exception:
+            _logger.exception("Failed to read school")
+            return error("Unable to load school.", 500)
 
-    @http.route("/v1/school/<int:school_id>", methods=["PUT"], type="http", auth="none", csrf=False)
-    def update_school(self, school_id):
+    @http.route("/v1/school/<int:school_id>", methods=["PUT"], type="http", auth="user", csrf=True)
+    def update_school(self, school_id, **kwargs):
+        if not can_write():
+            return error("School Manager permission required.", 403)
+        values, problem = validate_payload()
+        if problem:
+            return error(problem, 400)
         try:
-            school_rec = request.env['school'].sudo().search([('id', '=', school_id)])
-            if not school_rec:
-                return invalid_response(f"School with ID {school_id} not found.", status=404)
+            school = request.env["school"].search([("id", "=", school_id)], limit=1)
+            if not school:
+                return error("School not found.", 404)
+            school.write(values)
+            return ok({"message": "School updated.", "id": school.id, "name": school.name})
+        except Exception:
+            _logger.exception("Failed to update school")
+            return error("Unable to update school.", 500)
 
-            vals = json.loads(request.httprequest.data.decode())
-            # Filter out invalid fields
-            existing_fields = request.env['school']._fields.keys()
-            valid_vals = {key: value for key, value in vals.items() if key in existing_fields}
-            if not valid_vals:
-                return invalid_response("No valid fields provided for update.", status=400)
-
-            # Update the school record
-            school_rec.write(valid_vals)
-            return valid_response({
-                "message": "School updated successfully.",
-                "id": school_rec.id,
-                "name": school_rec.name,
-            }, status=200)
-        except Exception as e:
-            _logger.exception("Error updating school.")
-            return invalid_response("An unexpected error occurred.", status=500)
-
-    @http.route("/v1/school/<int:school_id>", methods=["DELETE"], type="http", auth="none", csrf=False)
-    def delete_school(self, school_id):
+    @http.route("/v1/school/<int:school_id>", methods=["DELETE"], type="http", auth="user", csrf=True)
+    def delete_school(self, school_id, **kwargs):
+        if not can_write():
+            return error("School Manager permission required.", 403)
         try:
-            school_rec = request.env['school'].sudo().search([('id', '=', school_id)])
-            if not school_rec:
-                return invalid_response(f"School with ID {school_id} not found.", status=404)
+            school = request.env["school"].search([("id", "=", school_id)], limit=1)
+            if not school:
+                return error("School not found.", 404)
+            school.unlink()
+            return ok({"message": "School deleted."})
+        except Exception:
+            _logger.exception("Failed to delete school")
+            return error("Unable to delete school.", 500)
 
-            # Delete the school record
-            school_rec.unlink()
-            return valid_response({"message": "School deleted successfully."}, status=200)
-        except Exception as e:
-            _logger.exception("Error deleting school.")
-            return invalid_response("An unexpected error occurred.", status=500)
-
-    @http.route("/v1/schools", methods=["GET"], type="http", auth="none", csrf=False)
-    def get_school_list(self):
+    @http.route("/v1/schools", methods=["GET"], type="http", auth="user")
+    def get_school_list(self, **kwargs):
+        if not can_read():
+            return error("School access required.", 403)
+        args = request.httprequest.args
         try:
-            params = parse_qs(request.httprequest.query_string.decode('utf-8'))
-            school_domain = []
-            offset = 0
-            limit = 5
+            page = int(args.get("page", "1"))
+            limit = int(args.get("limit", "5"))
+        except (ValueError, TypeError):
+            return error("Page and limit must be integers.", 400)
+        if page < 1 or not 1 <= limit <= 100:
+            return error("Page must be >= 1; limit must be between 1 and 100.", 400)
 
-            # Parse query parameters for pagination and filtering
-            if params.get('limit'):
-                try:
-                    limit = int(params['limit'][0])
-                except ValueError:
-                    return invalid_response("Invalid 'limit' parameter. Must be an integer.", status=400)
-
-            if params.get('page'):
-                try:
-                    page = int(params['page'][0])
-                    offset = (page - 1) * limit
-                except ValueError:
-                    return invalid_response("Invalid 'page' parameter. Must be an integer.", status=400)
-
-            if params.get('state'):
-                school_domain.append(('state', '=', params['state'][0]))
-
-            school_ids = request.env['school'].sudo().search(school_domain, offset=offset, limit=limit, order='id desc')
-            school_count = request.env['school'].sudo().search_count(school_domain)
-
-            if not school_ids:
-                return valid_response({
-                    "total": school_count,
-                    "schools": []
-                }, status=200)
-
-            return valid_response({
-                "total": school_count,
-                "page": page if params.get('page') else 1,
+        domain = []
+        school_type = args.get("school_type")
+        if school_type:
+            if school_type not in SCHOOL_TYPES:
+                return error("Unsupported school type.", 400)
+            domain.append(("school_type", "=", school_type))
+        try:
+            model = request.env["school"]
+            rows = model.search_read(
+                domain, fields=["id", "name"], offset=(page - 1) * limit,
+                limit=limit, order="id desc",
+            )
+            return ok({
+                "total": model.search_count(domain),
+                "page": page,
                 "limit": limit,
-                "schools": school_ids.mapped(lambda rec: {
-                    "id": rec.id,
-                    "name": rec.name,
-                }),
-            }, status=200)
-        except Exception as e:
-            _logger.exception("Error fetching school list.")
-            return invalid_response("An unexpected error occurred.", status=500)
+                "schools": rows,
+            })
+        except Exception:
+            _logger.exception("Failed to list schools")
+            return error("Unable to list schools.", 500)
